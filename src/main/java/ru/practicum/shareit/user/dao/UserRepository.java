@@ -29,10 +29,10 @@ public class UserRepository {
 
     public UserDto update(UserDto userDto, int userId) {
         User newUser = users.get(userId);
-        if(userDto.getEmail()!=null&&!userDto.getEmail().isEmpty()&&!userDto.getEmail().isBlank()){
+        if (userDto.getEmail() != null && !userDto.getEmail().isEmpty() && !userDto.getEmail().isBlank()) {
             newUser.setEmail(userDto.getEmail());
         }
-        if(userDto.getName()!=null&&!userDto.getName().isEmpty()&&!userDto.getName().isBlank()){
+        if (userDto.getName() != null && !userDto.getName().isEmpty() && !userDto.getName().isBlank()) {
             newUser.setName(userDto.getName());
         }
         users.put(id, newUser);
@@ -41,9 +41,9 @@ public class UserRepository {
     }
 
     public UserDto getUser(int id) {
-        try{
+        try {
             return UserMapper.toUserDto(users.get(id));
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             throw new NotFoundException("Пользователь с id " + id + " не найден");
         }
     }
@@ -61,7 +61,7 @@ public class UserRepository {
         log.info("Успешно удален пользователь c id {}", id);
     }
 
-    public void checkUserExist(User user){
+    public void checkUserExist(User user) {
         Optional<User> existingUser = users.values().stream()
                 .filter(u -> u.getEmail().equals(user.getEmail()))
                 .findFirst();
