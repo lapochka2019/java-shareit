@@ -61,14 +61,14 @@ public class UserRepository {
         log.info("Успешно удален пользователь c id {}", id);
     }
 
-    public void checkUserExist(User user) {
+    public void checkUserExist(String email) {
         Optional<User> existingUser = users.values().stream()
-                .filter(u -> u.getEmail().equals(user.getEmail()))
+                .filter(u -> u.getEmail().equals(email))
                 .findFirst();
 
         if (existingUser.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Пользователь с email " + user.getEmail() + " уже существует");
+                    "Пользователь с email " + email + " уже существует");
         }
     }
 

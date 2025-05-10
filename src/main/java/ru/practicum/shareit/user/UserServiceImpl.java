@@ -24,13 +24,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(User user) {
         log.info("Проверяем, нет ли такого пользователя");
-        storage.checkUserExist(user);
+        storage.checkUserExist(user.getEmail());
         log.info("Создаем нового пользователя пользователя");
         return storage.create(user);
     }
 
     @Override
-    public UserDto update(UserDto userDto, int id) {
+    public UserDto update(UserDto userDto, Integer id) {
+        if (id == null) {
+            throw new IllegalArgumentException("id не может быть null");
+        }
         try {
             log.info("Проверяем, существует ли пользователь");
             storage.getUser(id);
@@ -42,7 +45,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getUser(int id) {
+    public UserDto getUser(Integer id) {
+        if (id == null) {
+            throw new IllegalArgumentException("id не может быть null");
+        }
         try {
             return storage.getUser(id);
         } catch (NullPointerException e) {
@@ -61,7 +67,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(Integer id) {
+        if (id == null) {
+            throw new IllegalArgumentException("id не может быть null");
+        }
         try {
             log.info("Проверяем, существует ли пользователь");
             storage.getUser(id);

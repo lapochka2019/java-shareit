@@ -27,13 +27,13 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public UserDto update(@Valid @RequestBody UserDto userDto, @PathVariable("id") int id) {
+    public UserDto update(@Valid @RequestBody UserDto userDto, @PathVariable("id") Integer id) {
         log.info("Запрос на обновление пользователя");
         return service.update(userDto, id);
     }
 
     @GetMapping("/{id}")
-    public UserDto getUser(@PathVariable("id") int id) {
+    public UserDto getUser(@PathVariable("id") Integer id) {
         log.info("Запрос на получение пользователя с id:{}", id);
         return service.getUser(id);
     }
@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable("id") int id) {
+    public void delete(@PathVariable("id") Integer id) {
         log.info("Запрос на удаление пользователя");
         service.delete(id);
     }
