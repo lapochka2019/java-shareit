@@ -35,6 +35,7 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("id не может быть null");
         }
         try {
+            storage.checkUserExist(userDto.getEmail());
             log.info("Проверяем, существует ли пользователь");
             storage.getUser(id);
             log.info("Пользователь существует, обновляем его данные");
