@@ -1,12 +1,13 @@
 package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.other.Marker;
 
 import java.util.List;
 
@@ -16,12 +17,13 @@ import java.util.List;
 @Slf4j
 @Validated
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
+    @Autowired
     ItemService service;
 
     @PostMapping
+    @Validated(Marker.OnCreate.class)
     public Item create(@RequestHeader("X-Sharer-User-Id") Integer owner,
                        @Valid @RequestBody ItemDto itemDto) {
         log.info("Запрос на создание вещи");
@@ -36,19 +38,19 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ItemDto getItem(@PathVariable("id") int id) {
+    public Item getItem(@PathVariable("id") int id) {
         log.info("Запрос на получение вещи с id {}", id);
         return service.getItem(id);
     }
 
     @GetMapping
-    public List<ItemDto> getItemsForOwner(@RequestHeader("X-Sharer-User-Id") int owner) {
+    public List<Item> getItemsForOwner(@RequestHeader("X-Sharer-User-Id") int owner) {
         log.info("Запрос на получение вещей пользователя id {}", owner);
         return service.getItemsForOwner(owner);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItems(@RequestParam String text) {
+    public List<Item> searchItems(@RequestParam String text) {
         log.info("Поиск вещей по запросу: {}", text);
         return service.itemSearch(text);
     }

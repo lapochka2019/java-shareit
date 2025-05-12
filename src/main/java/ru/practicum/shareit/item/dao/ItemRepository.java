@@ -5,13 +5,9 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
-import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @Repository
@@ -66,35 +62,34 @@ public class ItemRepository {
         return oldItem;
     }
 
-    public ItemDto getItem(int id) {
+    public Item getItem(int id) {
         return items.values().stream()
                 .map(map -> map.get(id))
                 .filter(Objects::nonNull)
                 .findFirst()
-                .map(ItemMapper::toItemDto)
-                .orElseThrow(() -> new NotFoundException("Вещь с ID " + id + " не найдена"));
+                .orElseThrow(() -> new IllegalArgumentException("Вещь с ID " + id + " не найдена"));
 
     }
 
-    public List<ItemDto> getItemsForOwner(int owner) {
+    public List<Item> getItemsForOwner(int owner) {
         try {
-            return items.get(owner).values().stream().map(ItemMapper::toItemDto).toList();
+            return items.get(owner).values().stream().toList();
         } catch (NullPointerException e) {
             throw new NotFoundException("Вещи для пользователя с ID " + id + " не найдены");
         }
     }
 
-    public List<ItemDto> searchItems(String text) {
+    public List<Item> searchItems(String text) {
         try {
             return items.values().stream()
                     .flatMap(userItems -> userItems.values().stream())
                     .filter(Objects::nonNull)
-                    .filter(item -> item.getName().toLowerCase().contains(text) ||
-                            item.getDescription().toLowerCase().contains(text))
-                    .map(ItemMapper::toItemDto)
+                    .filter(item -> (item.getName().toLowerCase().contains(text) ||
+                            item.getDescription().toLowerCase().contains(text)) &&
+                            item.getAvailable())
                     .toList();
         } catch (NullPointerException e) {
-            throw new NotFoundException("По вашему запросу ничего не найдено");
+            return new ArrayList<>();
         }
     }
 }

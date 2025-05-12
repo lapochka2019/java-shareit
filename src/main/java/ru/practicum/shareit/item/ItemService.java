@@ -10,9 +10,9 @@ public interface ItemService {
 
     Item update(ItemDto itemDto, Integer owner, int id);
 
-    ItemDto getItem(Integer owner);
+    Item getItem(Integer owner);
 
-    List<ItemDto> getItemsForOwner(Integer owner);
+    List<Item> getItemsForOwner(Integer owner);
 
-    List<ItemDto> itemSearch(String text);
+    List<Item> itemSearch(String text);
 }
