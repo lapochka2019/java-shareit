@@ -7,7 +7,10 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Repository
@@ -80,16 +83,13 @@ public class ItemRepository {
     }
 
     public List<Item> searchItems(String text) {
-        try {
-            return items.values().stream()
-                    .flatMap(userItems -> userItems.values().stream())
-                    .filter(Objects::nonNull)
-                    .filter(item -> (item.getName().toLowerCase().contains(text) ||
-                            item.getDescription().toLowerCase().contains(text)) &&
-                            item.getAvailable())
-                    .toList();
-        } catch (NullPointerException e) {
-            return new ArrayList<>();
-        }
+        return items.values().stream()
+                .flatMap(userItems -> userItems.values().stream())
+                .filter(Objects::nonNull)
+                .filter(item -> (item.getName().toLowerCase().contains(text) ||
+                        item.getDescription().toLowerCase().contains(text)) &&
+                        item.getAvailable())
+                .toList();
+
     }
 }
