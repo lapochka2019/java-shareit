@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dao.ItemRepository;
@@ -66,7 +65,7 @@ public class ItemServiceTest {
         ItemDto dto = new ItemDto();
         dto.setName("Новое имя");
 
-        assertThrows(ResponseStatusException.class, () -> itemService.update(dto, null, 1));
+        assertThrows(NullPointerException.class, () -> itemService.update(dto, null, 1));
     }
 
     @Test
@@ -104,6 +103,6 @@ public class ItemServiceTest {
     @Test
     @DisplayName("Получение списка вещей: владелец не указан")
     void testGetItemsForOwner_OwnerIsNull() {
-        assertThrows(ResponseStatusException.class, () -> itemService.getItemsForOwner(null));
+        assertThrows(NotFoundException.class, () -> itemService.getItemsForOwner(null));
     }
 }

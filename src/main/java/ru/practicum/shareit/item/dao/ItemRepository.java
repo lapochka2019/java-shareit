@@ -74,7 +74,7 @@ public class ItemRepository {
 
     }
 
-    public List<Item> getItemsForOwner(int owner) {
+    public List<Item> getItemsForOwner(Integer owner) {
         try {
             return items.get(owner).values().stream().toList();
         } catch (NullPointerException e) {
