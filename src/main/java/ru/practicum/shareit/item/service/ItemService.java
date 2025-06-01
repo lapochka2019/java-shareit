@@ -15,7 +15,7 @@ public interface ItemService {
 
     Item getItem(Long owner);
 
-    NewItem getNewItem(Long owner);
+    NewItem getNewItem(Long itemId, Long userId);
 
     List<Item> getItemsForOwner(Long owner);
 

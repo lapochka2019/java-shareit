@@ -68,24 +68,28 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public NewItem getNewItem(Long id) {
-        log.info("Получаем вещь по id");
-        Item item = getItem(id);
+    public NewItem getNewItem(Long itemId, Long userId) {
+        log.info("Получаем вещь по itemId");
+        Item item = getItem(itemId);
         log.info("Получаем список комментариев вещи {}", item);
-        List<CommentDto> commentList = commentsRepository.findAllByItemId((id)).stream()
+        List<CommentDto> commentList = commentsRepository.findAllByItemId((itemId)).stream()
                 .map(CommentMapper::toCommentDto)
                 .toList();
         log.info("Получаем текущее время");
         LocalDateTime now = LocalDateTime.now();
-        log.info("Получаем последнее бронирование вещи");
-        BookingDto lasBooking = bookingRepository.getLastBooking(id, now)
-                .map(BookingMapper::toBookingDto)
-                .orElse(null);
-        log.info("Получаем следующее бронирование вещи");
-        BookingDto nextBooking = bookingRepository.getNextBooking(id, now)
-                .map(BookingMapper::toBookingDto)
-                .orElse(null);
 
+        BookingDto lasBooking = null;
+        BookingDto nextBooking = null;
+        if (userId.equals(item.getOwner())) {
+            log.info("Получаем последнее бронирование вещи");
+            lasBooking = bookingRepository.getLastBooking(itemId, now)
+                    .map(BookingMapper::toBookingDto)
+                    .orElse(null);
+            log.info("Получаем следующее бронирование вещи");
+            nextBooking = bookingRepository.getNextBooking(itemId, now)
+                    .map(BookingMapper::toBookingDto)
+                    .orElse(null);
+        }
         return ItemMapper.toNewItem(item, lasBooking, nextBooking, commentList);
     }
 
@@ -129,7 +133,6 @@ public class ItemServiceImpl implements ItemService {
         if (bookingRepository.findAllByUserBookings(userId, itemId, now).isEmpty()) {
             throw new ValidationException("Пользователь не брал вещь в аренду");
         } else {
-
             Comment comment = CommentMapper.toComment(1L, commentDto, item, user, now);
             return CommentMapper.toCommentResponseDto(commentsRepository.save(comment));
         }
