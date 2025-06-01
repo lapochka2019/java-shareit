@@ -1,4 +1,4 @@
-package ru.practicum.shareit.other;
+package ru.practicum.shareit.utils;
 
 public interface Marker {
     interface OnCreate {
