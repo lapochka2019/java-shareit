@@ -131,12 +131,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public void checkData(BookingDto dto) {
-        if (dto.getStart().equals(dto.getEnd())) {
-            log.error("Время начала и конца бронирования должно отличаться");
-            throw new IllegalArgumentException("Время начала и конца бронирования должно отличаться");
-        }
-        if (dto.getStart().isAfter(dto.getEnd())) {
-            log.error("Время начала бронирования должно быть раньше конца бронирования");
+        if (!dto.getStart().isBefore(dto.getEnd())) {
             throw new IllegalArgumentException("Время начала бронирования должно быть раньше конца бронирования");
         }
     }
