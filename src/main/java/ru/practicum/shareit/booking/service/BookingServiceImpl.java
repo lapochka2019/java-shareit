@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,8 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dto.ItemFullDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.User;
@@ -23,24 +26,21 @@ import java.util.List;
 @Slf4j
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
-    ItemService itemService;
-    UserService userService;
-    BookingRepository bookingRepository;
+    private final ItemService itemService;
+    private final UserService userService;
+    private final BookingRepository bookingRepository;
+    private final BookingMapper bookingMapper;
+    private final ItemMapper itemMapper;
 
-    @Autowired
-    public BookingServiceImpl(ItemService itemService, UserService userService, BookingRepository bookingRepository) {
-        this.itemService = itemService;
-        this.userService = userService;
-        this.bookingRepository = bookingRepository;
-    }
 
     @Override
     public Booking createBooking(Long userId, BookingDto bookingDto) {
         log.info("Проверка корректной даты бронирования {}", bookingDto);
         checkData(bookingDto);
         log.info("Получение вещи, которую хотят забронировать");
-        Item item = itemService.getItem(bookingDto.getItemId());
+        Item item = itemMapper.fullItemDtoToItem(itemService.getItem(bookingDto.getItemId(), userId));
         if (!item.getAvailable()) {
             log.error("Вещь недоступна для бронирования.");
             throw new IllegalStateException("Вещь недоступна для бронирования.");
@@ -48,7 +48,7 @@ public class BookingServiceImpl implements BookingService {
         log.info("Получение пользователя, который хочет забронировать вещь");
         User user = userService.getUser(userId);
 
-        Booking booking = BookingMapper.toBooking(0L, bookingDto, item, user, BookingStatus.WAITING);
+        Booking booking = bookingMapper.toBooking(0L, bookingDto, item, user, BookingStatus.WAITING);
         log.info("Сохраняем запрос на бронирование");
         return bookingRepository.save(booking);
     }
