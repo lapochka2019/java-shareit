@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dao.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -13,7 +12,6 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.dto.ItemFullDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
@@ -103,10 +101,11 @@ public class BookingServiceImpl implements BookingService {
         LocalDateTime now = LocalDateTime.now();
         List<Booking> bookings = switch (state) {
             case ALL -> bookingRepository.findByBookerIdOrderByStartDesc(id);
-            case CURRENT -> bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(id, now,now);
+            case CURRENT -> bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(id, now, now);
             case PAST -> bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(id, now);
             case FUTURE -> bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(id, now);
-            case WAITING -> bookingRepository.findByBookerIdAndStatusAndStartAfterOrderByStartDesc(id, BookingStatus.WAITING, now);
+            case WAITING ->
+                    bookingRepository.findByBookerIdAndStatusAndStartAfterOrderByStartDesc(id, BookingStatus.WAITING, now);
             case REJECTED -> bookingRepository.findByBookerIdAndStatusOrderByStartDesc(id, BookingStatus.REJECTED);
         };
         return bookings;
@@ -124,7 +123,8 @@ public class BookingServiceImpl implements BookingService {
             case CURRENT -> bookingRepository.findByItem_OwnerAndStartBeforeAndEndAfterOrderByStartDesc(id, now, now);
             case PAST -> bookingRepository.findByItem_OwnerAndEndBeforeOrderByStartDesc(id, now);
             case FUTURE -> bookingRepository.findByItem_OwnerAndStartAfterOrderByStartDesc(id, now);
-            case WAITING -> bookingRepository.findByItem_OwnerAndStatusAndStartAfterOrderByStartDesc(id, BookingStatus.WAITING, now);
+            case WAITING ->
+                    bookingRepository.findByItem_OwnerAndStatusAndStartAfterOrderByStartDesc(id, BookingStatus.WAITING, now);
             case REJECTED -> bookingRepository.findByItem_OwnerAndStatusOrderByStartDesc(id, BookingStatus.REJECTED);
         };
         return bookings;

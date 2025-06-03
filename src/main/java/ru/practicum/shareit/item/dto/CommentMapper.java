@@ -12,9 +12,12 @@ import java.time.LocalDateTime;
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
     CommentMapper INSTANCE = Mappers.getMapper(CommentMapper.class);
+
     CommentDto toCommentDto(Comment comment);
+
     @Mapping(target = "id", source = "id")
     Comment toComment(Long id, CommentDto dto, Item item, User author, LocalDateTime created);
+
     @Mapping(target = "authorName", source = "comment.author.name")
     @Mapping(target = "itemId", source = "comment.item.id")
     CommentResponseDto toCommentResponseDto(Comment comment);
