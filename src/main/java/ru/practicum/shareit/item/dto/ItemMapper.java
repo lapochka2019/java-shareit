@@ -12,9 +12,10 @@ public interface ItemMapper {
     ItemMapper INSTANCE = Mappers.getMapper(ItemMapper.class);
 
     ItemDto toItemDto(Item item);
-    Item dtoToItem(ItemDto item, Long id, Long owner);
-    ItemFullDto toNewItem(Item item, BookingDto lastBooking, BookingDto nextBooking, List<CommentDto> commentDtoList);
-    Item fullItemDtoToItem(ItemFullDto dto);
 
-    }
+    Item dtoToItem(ItemDto item, Long id, Long owner);
+
+    ItemFullDto toFullItem(Item item, BookingDto lastBooking, BookingDto nextBooking, List<CommentDto> comments);
+
+}
 

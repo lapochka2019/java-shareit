@@ -20,7 +20,7 @@ public interface ItemService {
 
     List<Item> itemSearch(String text);
 
-    void checkItemExist(Long id);
+    Item checkItemExist(Long id);
 
     CommentResponseDto addCommentToItem(Long id, Long item, CommentDto commentDto);
 }

@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dao.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -21,7 +20,6 @@ import ru.practicum.shareit.user.service.UserService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -47,7 +45,7 @@ public class ItemServiceImpl implements ItemService {
     public Item update(ItemDto itemDto, Long owner, Long id) {
         userService.checkUserExist(owner);
         checkItemExist(id);
-        Item existingItem = getItem(id);
+        Item existingItem = checkItemExist(id);
         if (itemDto.getName() != null) {
             existingItem.setName(itemDto.getName());
         }
@@ -66,7 +64,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemFullDto getItem(Long itemId, Long userId) {
         log.info("Получаем вещь по itemId");
-        Item item = getItem(itemId);
+        Item item = checkItemExist(itemId);
         log.info("Получаем список комментариев вещи {}", item);
         List<CommentDto> commentList = commentsRepository.findAllByItemId((itemId)).stream()
                 .map(commentMapper::toCommentDto)
@@ -86,7 +84,7 @@ public class ItemServiceImpl implements ItemService {
                     .map(bookingMapper::toBookingDto)
                     .orElse(null);
         }
-        return itemMapper.toNewItem(item, lasBooking, nextBooking, commentList);
+        return itemMapper.toFullItem(item, lasBooking, nextBooking, commentList);
     }
 
     @Override
@@ -103,13 +101,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public void checkItemExist(Long id) {
-        if (!itemRepository.existsById(id)) {
-            throw new NotFoundException("Вещь с id " + id + " не найдена");
-        }
-    }
-
-    public Item getItem(Long itemId){
+    public Item checkItemExist(Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь с id " + itemId + " не найдена"));
     }
@@ -119,7 +111,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Проверяем существование пользователя");
         User user = userService.getUser(userId);
         log.info("Проверяем существование вещи");
-        Item item = getItem(itemId);
+        Item item = checkItemExist(itemId);
         LocalDateTime now = LocalDateTime.now();
         if (bookingRepository.findAllByUserBookings(userId, itemId, now).isEmpty()) {
             throw new ValidationException("Пользователь не брал вещь в аренду");

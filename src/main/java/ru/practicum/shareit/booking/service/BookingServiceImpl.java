@@ -40,7 +40,7 @@ public class BookingServiceImpl implements BookingService {
         log.info("Проверка корректной даты бронирования {}", bookingDto);
         checkData(bookingDto);
         log.info("Получение вещи, которую хотят забронировать");
-        Item item = itemMapper.fullItemDtoToItem(itemService.getItem(bookingDto.getItemId(), userId));
+        Item item = itemService.checkItemExist(bookingDto.getItemId());
         if (!item.getAvailable()) {
             log.error("Вещь недоступна для бронирования.");
             throw new IllegalStateException("Вещь недоступна для бронирования.");
