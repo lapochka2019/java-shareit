@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class NewItem {
+public class ItemFullDto {
     private Long id;
     private String name;
     private String description;

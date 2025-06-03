@@ -22,6 +22,8 @@
 	<!-- Properties -->
 	<properties>
 		<java.version>21</java.version>
+		<maven.compiler.annotationProcessorOrder>-proc:only</maven.compiler.annotationProcessorOrder>
+
 	</properties>
 
 	<!-- Dependencies -->
@@ -81,6 +83,21 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- MapStruct annotation processor -->
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>1.5.5.Final</version> <!-- или актуальная версия -->
+		</dependency>
+
+		<!-- Для использования аннотаций в коде -->
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct-processor</artifactId>
+			<version>1.5.5.Final</version>
+			<scope>provided</scope>
+		</dependency>
+
 	</dependencies>
 
 	<!-- Build Configuration -->
@@ -96,6 +113,15 @@
 
 		<!-- Плагины -->
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<annotationProcessors>
+						<processor>org.mapstruct.ap.MappingProcessor</processor>
+					</annotationProcessors>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
