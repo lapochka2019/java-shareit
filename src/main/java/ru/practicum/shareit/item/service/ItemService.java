@@ -3,7 +3,7 @@ package ru.practicum.shareit.item.service;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentResponseDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.NewItem;
+import ru.practicum.shareit.item.dto.ItemFullDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public interface ItemService {
 
     Item getItem(Long owner);
 
-    NewItem getNewItem(Long itemId, Long userId);
+    ItemFullDto getNewItem(Long itemId, Long userId);
 
     List<Item> getItemsForOwner(Long owner);
 

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentResponseDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.NewItem;
+import ru.practicum.shareit.item.dto.ItemFullDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.utils.Marker;
 
@@ -41,7 +41,7 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public NewItem getItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable("id") Long id) {
+    public ItemFullDto getItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable("id") Long id) {
         log.info("Запрос на получение вещи с id {}", id);
         return service.getNewItem(id, userId);
     }

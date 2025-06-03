@@ -68,7 +68,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public NewItem getNewItem(Long itemId, Long userId) {
+    public ItemFullDto getNewItem(Long itemId, Long userId) {
         log.info("Получаем вещь по itemId");
         Item item = getItem(itemId);
         log.info("Получаем список комментариев вещи {}", item);
