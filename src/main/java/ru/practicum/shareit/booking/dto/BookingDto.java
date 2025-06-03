@@ -12,12 +12,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-
 public class BookingDto {
     @NotNull
     Long itemId;
-    @NotNull
+    @NotNull(message = "Время начала бронирования должно быть заполнено")
     LocalDateTime start;
-    @NotNull
+    @NotNull(message = "Время окончания бронирования должно быть заполнено")
     LocalDateTime end;
 }
