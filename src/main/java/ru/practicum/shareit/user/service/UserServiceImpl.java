@@ -31,11 +31,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User create(User user) {
+    public User create(UserDto userDto) {
         log.info("Проверяем, нет ли такого пользователя");
-        checkUserNotExist(user.getEmail());
+        checkUserNotExist(userDto.getEmail());
         log.info("Создаем нового пользователя пользователя");
-        return userRepository.save(user);
+        return userRepository.save(userMapper.toEntity(userDto));
     }
 
     @Override

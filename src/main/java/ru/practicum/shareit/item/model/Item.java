@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -20,7 +19,6 @@ public class Item {
     @Column(name = "description", nullable = false)
     private String description;
     @Column(name = "is_available", nullable = false)
-    @NotNull
     private Boolean available;
     @Column(name = "user_id", nullable = false)
     private Long owner;

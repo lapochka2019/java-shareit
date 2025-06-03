@@ -97,7 +97,7 @@ public class ItemServiceImpl implements ItemService {
         if (text.isEmpty()) {
             return new ArrayList<>();
         }
-        return itemRepository.searchAvailableItems(text);
+        return itemRepository.searchItem(text);
     }
 
     @Override

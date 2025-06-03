@@ -22,9 +22,9 @@ public class UserController {
     private final UserService service;
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) {
-        log.info("Запрос на создание пользователя {}", user);
-        return service.create(user);
+    public User create(@Valid @RequestBody UserDto userDto) {
+        log.info("Запрос на создание пользователя {}", userDto);
+        return service.create(userDto);
     }
 
     @PatchMapping("/{id}")
