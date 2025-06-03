@@ -71,9 +71,15 @@
 
 		<!-- Development tools -->
 		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>1.6.3</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<optional>true</optional>
+			<version>1.18.32</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -84,20 +90,20 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- MapStruct annotation processor -->
-		<dependency>
-			<groupId>org.mapstruct</groupId>
-			<artifactId>mapstruct</artifactId>
-			<version>1.5.5.Final</version>
-		</dependency>
+<!--		&lt;!&ndash; MapStruct annotation processor &ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>org.mapstruct</groupId>-->
+<!--			<artifactId>mapstruct</artifactId>-->
+<!--			<version>1.5.5.Final</version>-->
+<!--		</dependency>-->
 
-		<!-- Для использования аннотаций в коде -->
-		<dependency>
-			<groupId>org.mapstruct</groupId>
-			<artifactId>mapstruct-processor</artifactId>
-			<version>1.5.5.Final</version>
-			<scope>provided</scope>
-		</dependency>
+<!--		&lt;!&ndash; Для использования аннотаций в коде &ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>org.mapstruct</groupId>-->
+<!--			<artifactId>mapstruct-processor</artifactId>-->
+<!--			<version>1.5.5.Final</version>-->
+<!--			<scope>provided</scope>-->
+<!--		</dependency>-->
 
 	</dependencies>
 
@@ -118,25 +124,23 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<annotationProcessors>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>1.6.3</version>
+						</path>
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
-							<version>${org.projectlombok.version}</version>
+							<version>1.18.32</version>
 						</path>
-						<!-- This is needed when using Lombok 1.18.16 and above -->
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok-mapstruct-binding</artifactId>
 							<version>0.2.0</version>
 						</path>
-						<!-- Mapstruct should follow the lombok path(s) -->
-						<path>
-						<groupId>org.mapstruct</groupId>
-						<artifactId>mapstruct-processor</artifactId>
-						<version>${org.mapstruct.version}</version>
-						</path>
-					</annotationProcessors>
+					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
 			<plugin>
