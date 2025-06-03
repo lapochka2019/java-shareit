@@ -97,17 +97,17 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<Booking> getBookingByUserId(Long id, String stateString) {
         log.info("Проверяем параметр stateString");
-        BookingState state = BookingState.from(stateString);
+        BookingState state = parseState(stateString);
         log.info("Получение пользователя");
         User user = userService.getUser(id);
         LocalDateTime now = LocalDateTime.now();
         List<Booking> bookings = switch (state) {
-            case ALL -> bookingRepository.findAllBookingByBookerId(id);
-            case CURRENT -> bookingRepository.findCurrentBookingByBookerId(id, now);
-            case PAST -> bookingRepository.findPastBookingByBookerId(id, now);
-            case FUTURE -> bookingRepository.findFutureBookingByBookerId(id, now);
-            case WAITING -> bookingRepository.findWaitingBookingByBookerId(id, now);
-            case REJECTED -> bookingRepository.findRejectBookingByBookerId(id);
+            case ALL -> bookingRepository.findByBookerIdOrderByStartDesc(id);
+            case CURRENT -> bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(id, now,now);
+            case PAST -> bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(id, now);
+            case FUTURE -> bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(id, now);
+            case WAITING -> bookingRepository.findByBookerIdAndStatusAndStartAfterOrderByStartDesc(id, BookingStatus.WAITING, now);
+            case REJECTED -> bookingRepository.findByBookerIdAndStatusOrderByStartDesc(id, BookingStatus.REJECTED);
         };
         return bookings;
     }
@@ -115,17 +115,17 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<Booking> getBookingByOwnerId(Long id, String stateString) {
         log.info("Проверяем параметр stateString");
-        BookingState state = BookingState.from(stateString);
+        BookingState state = parseState(stateString);
         log.info("Получение пользователя (владельца)");
         User user = userService.getUser(id);
         LocalDateTime now = LocalDateTime.now();
         List<Booking> bookings = switch (state) {
-            case ALL -> bookingRepository.findAllBookingsByOwnerId(id);
-            case CURRENT -> bookingRepository.findAllCurrentBookingsByOwnerId(id, now);
-            case PAST -> bookingRepository.findAllPastBookingsByOwnerId(id, now);
-            case FUTURE -> bookingRepository.findAllFutureBookingsByOwnerId(id, now);
-            case WAITING -> bookingRepository.findAllWaitingBookingsByOwnerId(id, now);
-            case REJECTED -> bookingRepository.findAllRejectedBookingsByOwnerId(id);
+            case ALL -> bookingRepository.findByItem_OwnerOrderByStartDesc(id);
+            case CURRENT -> bookingRepository.findByItem_OwnerAndStartBeforeAndEndAfterOrderByStartDesc(id, now, now);
+            case PAST -> bookingRepository.findByItem_OwnerAndEndBeforeOrderByStartDesc(id, now);
+            case FUTURE -> bookingRepository.findByItem_OwnerAndStartAfterOrderByStartDesc(id, now);
+            case WAITING -> bookingRepository.findByItem_OwnerAndStatusAndStartAfterOrderByStartDesc(id, BookingStatus.WAITING, now);
+            case REJECTED -> bookingRepository.findByItem_OwnerAndStatusOrderByStartDesc(id, BookingStatus.REJECTED);
         };
         return bookings;
     }
@@ -133,6 +133,14 @@ public class BookingServiceImpl implements BookingService {
     public void checkData(BookingDto dto) {
         if (!dto.getStart().isBefore(dto.getEnd())) {
             throw new IllegalArgumentException("Время начала бронирования должно быть раньше конца бронирования");
+        }
+    }
+
+    public static BookingState parseState(String stateString) {
+        try {
+            return BookingState.valueOf(stateString.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException("Неизвестный BookingState: " + stateString);
         }
     }
 
