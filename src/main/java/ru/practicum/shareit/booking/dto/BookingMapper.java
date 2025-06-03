@@ -21,5 +21,7 @@ public interface BookingMapper {
     Booking toBooking(Long id, BookingDto dto, Item item, User user, BookingStatus status);
 
     @Mapping(target = "itemId", source = "booking.item.id")
+    @Mapping(target = "bookerId", source = "booking.booker.id")
+    @Mapping(target = "status", source = "booking.status")
     BookingDto toBookingDto(Booking booking);
 }
