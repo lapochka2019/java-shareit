@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDto {
-    private int id;
+    private Long id;
     private String name;
     @Email(message = "Это не похоже на email")
     private String email;

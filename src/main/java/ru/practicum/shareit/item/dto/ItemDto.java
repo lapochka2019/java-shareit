@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.other.Marker;
+import ru.practicum.shareit.utils.Marker;
 
 /**
  * TODO Sprint add-controllers.
@@ -24,5 +24,5 @@ public class ItemDto {
     private String description;
     @NotNull(message = "available должен быть заполнен", groups = Marker.OnCreate.class)
     private Boolean available;
-    private Integer requestId;
+    private Long request;
 }

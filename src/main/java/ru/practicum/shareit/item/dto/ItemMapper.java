@@ -1,14 +1,21 @@
 package ru.practicum.shareit.item.dto;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.item.model.Item;
 
-public class ItemMapper {
-    public static ItemDto toItem(Item item) {
-        return new ItemDto(
-                item.getName(),
-                item.getDescription(),
-                item.getAvailable(),
-                item.getRequest()
-        );
-    }
+import java.util.List;
+
+@Mapper(componentModel = "spring")
+public interface ItemMapper {
+    ItemMapper INSTANCE = Mappers.getMapper(ItemMapper.class);
+
+    ItemDto toItemDto(Item item);
+
+    Item dtoToItem(ItemDto item, Long id, Long owner);
+
+    ItemFullDto toFullItem(Item item, BookingDto lastBooking, BookingDto nextBooking, List<CommentDto> comments);
+
 }
+
