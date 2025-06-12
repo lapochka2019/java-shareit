@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ru.practicum.shareit.request.ItemRequest;
 
 @Getter
 @Setter
@@ -23,6 +24,8 @@ public class Item {
     private Boolean available;
     @Column(name = "user_id", nullable = false)
     private Long owner;
-    @Column(name = "request_id")
-    private Long request;
+
+    @ManyToOne
+    @JoinColumn(name = "request_id", referencedColumnName = "id")
+    private ItemRequest request;
 }

@@ -18,11 +18,12 @@ import ru.practicum.shareit.utils.Marker;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ItemDto {
     @NotBlank(message = "name должен быть заполнен", groups = Marker.OnCreate.class)
+    @Size(max = 255, message = "Длина Имени не должна превышать 255 символов")
     private String name;
     @NotBlank(message = "description должен быть заполнен", groups = Marker.OnCreate.class)
-    @Size(max = 200, message = "Длина описания не должна превышать 200 символов")
+    @Size(max = 512, message = "Длина описания не должна превышать 512 символов")
     private String description;
     @NotNull(message = "available должен быть заполнен", groups = Marker.OnCreate.class)
     private Boolean available;
-    private Long request;
+    private Long requestId;
 }

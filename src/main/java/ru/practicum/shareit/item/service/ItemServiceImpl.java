@@ -15,6 +15,8 @@ import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
@@ -32,6 +34,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentsRepository commentsRepository;
     private final BookingMapper bookingMapper;
     private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
     private final CommentMapper commentMapper;
 
     @Override
@@ -55,9 +58,9 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null) {
             existingItem.setAvailable(itemDto.getAvailable());
         }
-        if (itemDto.getRequest() != null) {
-            existingItem.setRequest(itemDto.getRequest());
-        }
+//        if (itemDto.getRequestId() != null) {
+//            existingItem.setRequest(itemDto.getRequestId());
+//        }
         return itemRepository.save(existingItem);
     }
 
@@ -84,7 +87,8 @@ public class ItemServiceImpl implements ItemService {
                     .map(bookingMapper::toBookingDto)
                     .orElse(null);
         }
-        return itemMapper.toFullItem(item, lasBooking, nextBooking, commentList);
+        UserDto userDto = userMapper.toDto(userService.getUser(userId));
+        return itemMapper.toFullItem(item, lasBooking, nextBooking, commentList,userDto);
     }
 
     @Override
