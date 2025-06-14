@@ -44,7 +44,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         log.info("Проверяем существование пользователя {}", user);
         userService.getUser(user);
         log.info("Получаем запросы пользователя {}", user);
-        return itemRequestRepository.findByRequestorIdOrderByCreatedDesc(user).stream()
+        return itemRequestRepository.findByRequesterIdOrderByCreatedDesc(user).stream()
                 .map(request -> itemRequestMapper.toItemRequestAnswerDto
                         (request, Optional.ofNullable(request.getItems())
                                 .orElse(Collections.emptyList()).stream()
