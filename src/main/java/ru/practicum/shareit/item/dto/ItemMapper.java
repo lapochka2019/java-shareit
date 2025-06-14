@@ -13,9 +13,7 @@ import java.util.List;
 public interface ItemMapper {
     ItemMapper INSTANCE = Mappers.getMapper(ItemMapper.class);
 
-    ItemDto toItemDto(Item item);
-
-    Item dtoToItem(ItemDto item, Long id, Long owner);
+    Item dtoToItem(ItemCreateDto item, Long id, Long owner);
 
     @Mapping(target = "id", source = "item.id")
     @Mapping(target = "name", source = "item.name")
@@ -24,5 +22,8 @@ public interface ItemMapper {
     ItemFullDto toFullItem(Item item, BookingDto lastBooking, BookingDto nextBooking, List<CommentDto> comments, UserDto owner);
 
     ItemDtoForRequest toItemDtoForRequest (Item item);
+
+    //@Mapping(target = "requestId", source = "item.request.id")
+    ItemDto toItemDto (Item item);
 }
 

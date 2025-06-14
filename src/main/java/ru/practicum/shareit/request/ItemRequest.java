@@ -23,9 +23,14 @@ public class ItemRequest {
     private String description;
     @Column(name = "requester_id", nullable = false)
     private Long requesterId;
-    @Column(name="creation_date", nullable = false)
+    @Column(name = "creation_date", nullable = false)
     private LocalDateTime created;
 
-    @OneToMany(mappedBy = "request")
+    @OneToMany(
+            mappedBy = "request",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     List<Item> items;
 }

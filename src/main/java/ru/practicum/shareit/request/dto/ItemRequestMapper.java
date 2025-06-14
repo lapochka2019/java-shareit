@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request.dto;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import ru.practicum.shareit.item.dto.ItemDtoForRequest;
 import ru.practicum.shareit.request.ItemRequest;
@@ -12,7 +13,7 @@ import java.util.List;
 public interface ItemRequestMapper {
     ItemRequestMapper INSTANCE = Mappers.getMapper(ItemRequestMapper.class);
 
-    ItemRequest toItemRequest (ItemRequestDto itemRequestDto, Long requestorId, LocalDateTime created);
+    ItemRequest toItemRequest (ItemRequestDto itemRequestDto, Long requesterId, LocalDateTime created);
 
-    ItemRequestAnswerDto toItemRequestAnswerDto (ItemRequest itemRequest, List<ItemDtoForRequest> items);
+    ItemRequestAnswerDto toItemRequestAnswerDto(ItemRequest request, List<ItemDtoForRequest> items);
 }

@@ -1,6 +1,6 @@
 package ru.practicum.shareit.request.service;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -39,19 +39,20 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return itemRequestRepository.save(itemRequestMapper.toItemRequest(dto, user, LocalDateTime.now()));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ItemRequestAnswerDto> getUserRequests(Long user) {
-        log.info("Проверяем существование пользователя {}", user);
         userService.getUser(user);
-        log.info("Получаем запросы пользователя {}", user);
+
         return itemRequestRepository.findByRequesterIdOrderByCreatedDesc(user).stream()
-                .map(request -> itemRequestMapper.toItemRequestAnswerDto
-                        (request, Optional.ofNullable(request.getItems())
+                .map(request -> itemRequestMapper.toItemRequestAnswerDto(
+                        request,
+                        Optional.ofNullable(request.getItems())
                                 .orElse(Collections.emptyList()).stream()
                                 .map(itemMapper::toItemDtoForRequest)
                                 .toList()
-                        )
-                ).toList();
+                ))
+                .toList();
     }
 
     @Override
@@ -67,6 +68,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 ).toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ItemRequestAnswerDto getRequest(Long requestId) {
         Optional<ItemRequest> optionalItemRequest = itemRequestRepository.findById(requestId);
