@@ -14,7 +14,11 @@ import ru.practicum.shareit.item.dao.ItemRepository;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.dao.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
@@ -32,33 +36,44 @@ public class ItemServiceImpl implements ItemService {
     private final CommentsRepository commentsRepository;
     private final BookingMapper bookingMapper;
     private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
     private final CommentMapper commentMapper;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
-    public Item create(ItemDto itemDto, Long owner) {
-        Item item = itemMapper.dtoToItem(itemDto, 0L, owner);
+    public ItemDto create(ItemCreateDto itemCreateDto, Long owner) {
+        // Проверяем, что пользователь существует
         userService.checkUserExist(owner);
-        return itemRepository.save(item);
+
+        // Создаем Item из DTO
+        Item item = itemMapper.dtoToItem(itemCreateDto, 0L, owner);
+
+        // Если requestId указан, получаем соответствующий ItemRequest
+        if (itemCreateDto.getRequestId() != null) {
+            ItemRequest request = itemRequestRepository.findById(itemCreateDto.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Запрос не найден"));
+            item.setRequest(request); // Устанавливаем связь
+        }
+
+        // Сохраняем вещь
+        return itemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
-    public Item update(ItemDto itemDto, Long owner, Long id) {
+    public ItemDto update(ItemCreateDto itemCreateDto, Long owner, Long id) {
         userService.checkUserExist(owner);
         checkItemExist(id);
         Item existingItem = checkItemExist(id);
-        if (itemDto.getName() != null) {
-            existingItem.setName(itemDto.getName());
+        if (itemCreateDto.getName() != null) {
+            existingItem.setName(itemCreateDto.getName());
         }
-        if (itemDto.getDescription() != null) {
-            existingItem.setDescription(itemDto.getDescription());
+        if (itemCreateDto.getDescription() != null) {
+            existingItem.setDescription(itemCreateDto.getDescription());
         }
-        if (itemDto.getAvailable() != null) {
-            existingItem.setAvailable(itemDto.getAvailable());
+        if (itemCreateDto.getAvailable() != null) {
+            existingItem.setAvailable(itemCreateDto.getAvailable());
         }
-        if (itemDto.getRequest() != null) {
-            existingItem.setRequest(itemDto.getRequest());
-        }
-        return itemRepository.save(existingItem);
+        return itemMapper.toItemDto(itemRepository.save(existingItem));
     }
 
     @Override
@@ -84,20 +99,23 @@ public class ItemServiceImpl implements ItemService {
                     .map(bookingMapper::toBookingDto)
                     .orElse(null);
         }
-        return itemMapper.toFullItem(item, lasBooking, nextBooking, commentList);
+        UserDto userDto = userMapper.toDto(userService.getUser(userId));
+        return itemMapper.toFullItem(item, lasBooking, nextBooking, commentList,userDto);
     }
 
     @Override
-    public List<Item> getItemsForOwner(Long owner) {
-        return itemRepository.findByOwner(owner);
+    public List<ItemDto> getItemsForOwner(Long owner) {
+        return itemRepository.findByOwner(owner).stream()
+                .map(itemMapper::toItemDto).toList();
     }
 
     @Override
-    public List<Item> itemSearch(String text) {
+    public List<ItemDto> itemSearch(String text) {
         if (text.isEmpty()) {
             return new ArrayList<>();
         }
-        return itemRepository.searchItem(text);
+        return itemRepository.searchItem(text).stream()
+                .map(itemMapper::toItemDto).toList();
     }
 
     @Override

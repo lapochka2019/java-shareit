@@ -32,15 +32,17 @@ public class ErrorHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(ConstraintViolationException ex) {
-        Map<String, String> errors = new HashMap<>();
-
+        StringBuilder errors = new StringBuilder("Ошибка валидации: ");
         ex.getConstraintViolations().forEach(violation -> {
-            String fieldPath = violation.getPropertyPath().toString();
+            String field = violation.getPropertyPath().toString();
             String message = violation.getMessage();
-            errors.put(fieldPath, message);
+            errors.append(String.format("[%s: %s] ", field, message));
         });
 
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", errors.toString());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(NotFoundException.class)

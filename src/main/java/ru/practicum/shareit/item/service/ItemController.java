@@ -5,11 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentResponseDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemFullDto;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.utils.Marker;
 
 import java.util.List;
@@ -27,17 +23,17 @@ public class ItemController {
 
     @PostMapping
     @Validated(Marker.OnCreate.class)
-    public Item create(@RequestHeader("X-Sharer-User-Id") Long owner,
-                       @Valid @RequestBody ItemDto itemDto) {
-        log.info("Запрос на создание вещи {} от пользователя {}", itemDto, owner);
-        return service.create(itemDto, owner);
+    public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long owner,
+                          @Valid @RequestBody ItemCreateDto itemCreateDto) {
+        log.info("Запрос на создание вещи {} от пользователя {}", itemCreateDto, owner);
+        return service.create(itemCreateDto, owner);
     }
 
     @PatchMapping("/{id}")
-    public Item update(@RequestHeader("X-Sharer-User-Id") Long owner,
-                       @Valid @RequestBody ItemDto itemDto, @PathVariable("id") Long id) {
-        log.info("Запрос на обновление вещи {} от пользователя {}", itemDto, owner);
-        return service.update(itemDto, owner, id);
+    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long owner,
+                                @Valid @RequestBody ItemCreateDto itemCreateDto, @PathVariable("id") Long id) {
+        log.info("Запрос на обновление вещи {} от пользователя {}", itemCreateDto, owner);
+        return service.update(itemCreateDto, owner, id);
     }
 
     @GetMapping("/{id}")
@@ -47,13 +43,13 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<Item> getItemsForOwner(@RequestHeader("X-Sharer-User-Id") Long owner) {
+    public List<ItemDto> getItemsForOwner(@RequestHeader("X-Sharer-User-Id") Long owner) {
         log.info("Запрос на получение вещей пользователя id {}", owner);
         return service.getItemsForOwner(owner);
     }
 
     @GetMapping("/search")
-    public List<Item> searchItems(@RequestParam String text) {
+    public List<ItemDto> searchItems(@RequestParam String text) {
         log.info("Поиск вещей по запросу: {}", text);
         return service.itemSearch(text);
     }
