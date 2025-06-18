@@ -127,7 +127,7 @@ class BookingServiceImplTest {
     void getBooking_whenUserNotParticipant_shouldThrowException() {
         BookingDto created = bookingService.createBooking(userId, dto);
 
-        assertThatThrownBy(() -> bookingService.getBooking(99L, created.getId()))
+        assertThatThrownBy(() -> bookingService.getBooking(1L, created.getId()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Получить информацию о бронировании может только владелец вещи или бронирующий");
     }
