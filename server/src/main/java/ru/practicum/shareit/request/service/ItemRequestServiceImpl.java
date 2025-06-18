@@ -43,28 +43,13 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestAnswerDto> getUserRequests(Long user) {
         userService.getUser(user);
 
-        return itemRequestRepository.findByRequesterIdOrderByCreatedDesc(user).stream()
-                .map(request -> itemRequestMapper.toItemRequestAnswerDto(
-                        request,
-                        Optional.ofNullable(request.getItems())
-                                .orElse(Collections.emptyList()).stream()
-                                .map(itemMapper::toItemDtoForRequest)
-                                .toList()
-                ))
-                .toList();
+        return itemRequestRepository.findByRequesterIdOrderByCreatedDesc(user).stream().map(request -> itemRequestMapper.toItemRequestAnswerDto(request, Optional.ofNullable(request.getItems()).orElse(Collections.emptyList()).stream().map(itemMapper::toItemDtoForRequest).toList())).toList();
     }
 
     @Override
     public List<ItemRequestAnswerDto> getAllRequests(int limit, int offset) {
         Pageable pageable = PageRequest.of(offset / limit, limit);
-        return itemRequestRepository.findAllByOrderByCreatedDesc(pageable).stream()
-                .map(request -> itemRequestMapper.toItemRequestAnswerDto
-                        (request, Optional.ofNullable(request.getItems())
-                                .orElse(Collections.emptyList()).stream()
-                                .map(itemMapper::toItemDtoForRequest)
-                                .toList()
-                        )
-                ).toList();
+        return itemRequestRepository.findAllByOrderByCreatedDesc(pageable).stream().map(request -> itemRequestMapper.toItemRequestAnswerDto(request, Optional.ofNullable(request.getItems()).orElse(Collections.emptyList()).stream().map(itemMapper::toItemDtoForRequest).toList())).toList();
     }
 
     @Transactional(readOnly = true)
@@ -76,11 +61,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         }
         ItemRequest itemRequest = optionalItemRequest.get();
 
-        return itemRequestMapper.toItemRequestAnswerDto
-                (itemRequest, Optional.ofNullable(itemRequest.getItems())
-                        .orElse(Collections.emptyList()).stream()
-                        .map(itemMapper::toItemDtoForRequest)
-                        .toList()
-                );
+        return itemRequestMapper.toItemRequestAnswerDto(itemRequest, Optional.ofNullable(itemRequest.getItems()).orElse(Collections.emptyList()).stream().map(itemMapper::toItemDtoForRequest).toList());
     }
 }
