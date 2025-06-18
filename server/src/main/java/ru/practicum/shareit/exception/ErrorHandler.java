@@ -1,6 +1,7 @@
 package ru.practicum.shareit.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -19,13 +20,16 @@ public class ErrorHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        String errorMessage = ex.getBindingResult()
-                .getAllErrors()
-                .getFirst()
-                .getDefaultMessage();
+        StringBuilder errors = new StringBuilder("Ошибка валидации: ");
+
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String field = error.getObjectName() + "." + error.getCode(); // или можно улучшить через FieldError
+            String message = error.getDefaultMessage();
+            errors.append(String.format("[%s: %s] ", field, message));
+        });
 
         Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", errorMessage);
+        errorResponse.put("error", errors.toString());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
@@ -48,5 +52,17 @@ public class ErrorHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<String> handleValidationExceptions(NotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(ValidationException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<String> handleIllegalState(IllegalStateException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 }

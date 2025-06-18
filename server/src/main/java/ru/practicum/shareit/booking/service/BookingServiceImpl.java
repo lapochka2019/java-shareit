@@ -5,6 +5,7 @@ import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.dto.BookingCreationDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -32,11 +33,13 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    public Booking createBooking(Long userId, BookingDto bookingDto) {
-        log.info("Проверка корректной даты бронирования {}", bookingDto);
-        checkData(bookingDto);
+    public BookingDto createBooking(Long userId, BookingCreationDto bookingCreationDto) {
+        log.info("Проверяем существования пользователя {}", userId);
+        userService.checkUserExist(userId);
+        log.info("Проверка корректной даты бронирования {}", bookingCreationDto);
+        checkData(bookingCreationDto);
         log.info("Получение вещи, которую хотят забронировать");
-        Item item = itemService.checkItemExist(bookingDto.getItemId());
+        Item item = itemService.checkItemExist(bookingCreationDto.getItemId());
         if (!item.getAvailable()) {
             log.error("Вещь недоступна для бронирования.");
             throw new IllegalStateException("Вещь недоступна для бронирования.");
@@ -44,13 +47,13 @@ public class BookingServiceImpl implements BookingService {
         log.info("Получение пользователя, который хочет забронировать вещь");
         User user = UserMapper.INSTANCE.toEntity(userService.getUser(userId));
 
-        Booking booking = bookingMapper.toBooking(0L, bookingDto, item, user, BookingStatus.WAITING);
+        Booking booking = bookingMapper.toBooking(0L, bookingCreationDto, item, user, BookingStatus.WAITING);
         log.info("Сохраняем запрос на бронирование");
-        return bookingRepository.save(booking);
+        return bookingMapper.toBookingDto(bookingRepository.save(booking));
     }
 
     @Override
-    public Booking bookingApproved(Long userId, Long bookingId, boolean approved) {
+    public BookingDto bookingApproved(Long userId, Long bookingId, boolean approved) {
         log.info("Получаем информацию о запросе бронирования {}", bookingId);
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Бронирование с id " + bookingId + " не найдено"));
@@ -70,31 +73,33 @@ public class BookingServiceImpl implements BookingService {
                 booking.setStatus(BookingStatus.REJECTED);
             }
             log.info("Изменение статуса бронирования");
-            return bookingRepository.save(booking);
+            return bookingMapper.toBookingDto(bookingRepository.save(booking));
         } else {
             throw new ValidationException("Одобрить бронирование может только владелец вещи");
         }
     }
 
     @Override
-    public Booking getBooking(Long userId, Long bookingId) {
+    public BookingDto getBooking(Long userId, Long bookingId) {
+        log.info("Проверяем существования пользователя {}", userId);
+        userService.getUser(userId);
         log.info("Получаем информацию о запросе бронирования {}", bookingId);
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Бронирование с id " + bookingId + " не найдено"));
         log.info("Получение вещи, которую хотят забронировать");
         Item item = booking.getItem();
         if (userId.equals(item.getOwner()) || userId.equals(booking.getBooker().getId())) {
-            return booking;
+            return bookingMapper.toBookingDto(booking);
         } else {
             throw new IllegalArgumentException("Получить информацию о бронировании может только владелец вещи или бронирующий");
         }
     }
 
     @Override
-    public List<Booking> getBookingByUserId(Long id, String stateString) {
+    public List<BookingDto> getBookingByUserId(Long id, String stateString) {
         log.info("Проверяем параметр stateString");
         BookingState state = parseState(stateString);
-        log.info("Получение пользователя");
+        log.info("Проверяем существования пользователя {}", id);
         userService.getUser(id);
         LocalDateTime now = LocalDateTime.now();
         List<Booking> bookings = switch (state) {
@@ -106,14 +111,16 @@ public class BookingServiceImpl implements BookingService {
                     bookingRepository.findByBookerIdAndStatusAndStartAfterOrderByStartDesc(id, BookingStatus.WAITING, now);
             case REJECTED -> bookingRepository.findByBookerIdAndStatusOrderByStartDesc(id, BookingStatus.REJECTED);
         };
-        return bookings;
+        return bookings.stream()
+                .map(bookingMapper::toBookingDto)
+                .toList();
     }
 
     @Override
-    public List<Booking> getBookingByOwnerId(Long id, String stateString) {
+    public List<BookingDto> getBookingByOwnerId(Long id, String stateString) {
         log.info("Проверяем параметр stateString");
         BookingState state = parseState(stateString);
-        log.info("Получение пользователя (владельца)");
+        log.info("Проверяем существования пользователя (ВЛАДЕЛЬЦА) {}", id);
         userService.getUser(id);
         LocalDateTime now = LocalDateTime.now();
         List<Booking> bookings = switch (state) {
@@ -125,10 +132,12 @@ public class BookingServiceImpl implements BookingService {
                     bookingRepository.findByItem_OwnerAndStatusAndStartAfterOrderByStartDesc(id, BookingStatus.WAITING, now);
             case REJECTED -> bookingRepository.findByItem_OwnerAndStatusOrderByStartDesc(id, BookingStatus.REJECTED);
         };
-        return bookings;
+        return bookings.stream()
+                .map(bookingMapper::toBookingDto)
+                .toList();
     }
 
-    public void checkData(BookingDto dto) {
+    public void checkData(BookingCreationDto dto) {
         if (!dto.getStart().isBefore(dto.getEnd())) {
             throw new IllegalArgumentException("Время начала бронирования должно быть раньше конца бронирования");
         }

@@ -14,7 +14,7 @@ public class UserMapperTest {
     @DisplayName("Все поля ДТО заполнены")
     @Test
     void toEntityFullReturnsMappedObjectTest() {
-        UserDto userDto = new UserDto(1L,"Test", "test@test.ru");
+        UserDto userDto = new UserDto(1L, "Test", "test@test.ru");
         User mappedUser = UserMapper.INSTANCE.toEntity(userDto);
 
         assertEquals(mappedUser.getId(), userDto.getId());
@@ -25,7 +25,7 @@ public class UserMapperTest {
     @DisplayName("Все поля ДТО равны null")
     @Test
     void toEntityNullUserDtoReturnsUserWithNullFields() {
-        UserDto userDto = new UserDto(null,null, null);
+        UserDto userDto = new UserDto(null, null, null);
         User mappedUser = UserMapper.INSTANCE.toEntity(userDto);
 
         assertNull(mappedUser.getId());
@@ -36,7 +36,7 @@ public class UserMapperTest {
     @DisplayName("ДТО частично заполнено. Email = null и пустое Имя")
     @Test
     void toEntityReturnsMappedObjectWithNullFieldsTest() {
-        UserDto userDto = new UserDto(1L,"", null);
+        UserDto userDto = new UserDto(1L, "", null);
         User mappedUser = UserMapper.INSTANCE.toEntity(userDto);
 
         assertEquals(mappedUser.getId(), userDto.getId());
@@ -47,7 +47,7 @@ public class UserMapperTest {
     @DisplayName("ДТО частично заполнено. Email = null")
     @Test
     void toEntityReturnsMappedObjectWithPartialDataTest() {
-        UserDto userDto = new UserDto(1L,"Test", null);
+        UserDto userDto = new UserDto(1L, "Test", null);
         User mappedUser = UserMapper.INSTANCE.toEntity(userDto);
 
         assertEquals(mappedUser.getId(), userDto.getId());

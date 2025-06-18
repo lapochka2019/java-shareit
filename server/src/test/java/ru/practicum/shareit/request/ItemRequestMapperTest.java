@@ -25,13 +25,13 @@ class ItemRequestMapperTest {
         ItemRequestDto dto = new ItemRequestDto();
         dto.setDescription(description);
 
-        ItemRequest itemRequest = mapper.toItemRequest(dto, requesterId, now);
+        ItemRequest itemRequest = mapper.toItemRequest(1L, dto, requesterId, now, null);
 
         assertThat(itemRequest).isNotNull();
         assertThat(itemRequest.getDescription()).isEqualTo(description);
         assertThat(itemRequest.getRequesterId()).isEqualTo(requesterId);
         assertThat(itemRequest.getCreated()).isEqualTo(now);
-        assertThat(itemRequest.getItems()).isNull(); // так как не передавали
+        assertThat(itemRequest.getItems()).isNull();
     }
 
     @Test

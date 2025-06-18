@@ -6,11 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.BookingClient;
-import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.utils.Marker;
-
-import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
@@ -33,7 +31,7 @@ public class ItemController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<Object> update(@RequestHeader("X-Sharer-User-Id") Long owner,
-                                @Valid @RequestBody ItemCreateDto itemCreateDto, @PathVariable("id") Long id) {
+                                         @Valid @RequestBody ItemCreateDto itemCreateDto, @PathVariable("id") Long id) {
         log.info("Запрос на обновление вещи {} от пользователя {}", itemCreateDto, owner);
         return itemClient.update(id, owner, itemCreateDto);
     }
@@ -58,7 +56,7 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<Object> addCommentToItem(@RequestHeader("X-Sharer-User-Id") Long user,
-                                               @PathVariable("itemId") Long itemId, @Valid @RequestBody CommentDto commentDto) {
+                                                   @PathVariable("itemId") Long itemId, @Valid @RequestBody CommentDto commentDto) {
         log.info("Пользователь: {} пытается оставить комментарий \"{}\" для вещи с id {}", user, commentDto, itemId);
         return itemClient.createComment(user, commentDto, itemId);
     }

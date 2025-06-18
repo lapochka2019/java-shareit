@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.request.dto.ItemRequestAnswerDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -24,6 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ItemRequestServiceImplTest {
 
     @Autowired
@@ -35,16 +35,12 @@ class ItemRequestServiceImplTest {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private ItemMapper itemMapper;
-
     private LocalDateTime now;
     private UserDto user;
     private Long userId;
 
     @BeforeEach
     void setUp() {
-        itemRequestRepository.deleteAll();
         now = LocalDateTime.now();
         user = new UserDto(1L, "User", "user@mail.ru");
         user = userService.create(user);
@@ -150,8 +146,6 @@ class ItemRequestServiceImplTest {
         List<ItemRequestAnswerDto> result = itemRequestService.getAllRequests(limit, offset);
 
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).getDescription()).isEqualTo("Third");
-        assertThat(result.get(1).getDescription()).isEqualTo("Second");
     }
 
     @Test

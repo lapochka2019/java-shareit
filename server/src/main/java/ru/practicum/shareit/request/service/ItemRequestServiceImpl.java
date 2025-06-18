@@ -35,7 +35,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         log.info("Проверяем существование пользователя {}", user);
         userService.getUser(user);
         log.info("Создаем запрос");
-        return itemRequestRepository.save(itemRequestMapper.toItemRequest(dto, user, LocalDateTime.now()));
+        return itemRequestRepository.save(itemRequestMapper.toItemRequest(0L, dto, user, LocalDateTime.now(), null));
     }
 
     @Transactional(readOnly = true)

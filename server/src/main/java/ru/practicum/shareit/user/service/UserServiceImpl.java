@@ -45,6 +45,8 @@ public class UserServiceImpl implements UserService {
         }
 
         if (userDto.getEmail() != null) {
+            log.info("Проверяем, нет ли пользователя с таким email");
+            checkUserNotExist(userDto.getEmail());
             existingUser.setEmail(userDto.getEmail());
         }
 

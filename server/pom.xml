@@ -8,14 +8,13 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>server</artifactId>
+    <artifactId>shareit-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <name>ShareIt Server</name>
 
     <properties>
-        <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
-        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+        <java.version>17</java.version>
     </properties>
 
     <dependencies>
@@ -64,6 +63,28 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- MapStruct annotation processor -->
+        <dependency>
+        	<groupId>org.mapstruct</groupId>
+        	<artifactId>mapstruct</artifactId>
+        	<version>1.5.5.Final</version>
+        </dependency>
+
+        <!-- Для использования аннотаций в коде -->
+        <dependency>
+        	<groupId>org.mapstruct</groupId>
+        	<artifactId>mapstruct-processor</artifactId>
+        	<version>1.5.5.Final</version>
+        	<scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -88,5 +109,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>

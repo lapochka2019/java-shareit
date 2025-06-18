@@ -21,6 +21,6 @@ public class BookingDto {
     @FutureOrPresent(message = "Время начала бронирования должно быть в настоящем или будущем")
     LocalDateTime start;
     @NotNull(message = "Время окончания бронирования должно быть заполнено")
-    @Future (message = "Время окончания бронирования должно быть в будущем")
+    @Future(message = "Время окончания бронирования должно быть в будущем")
     LocalDateTime end;
 }

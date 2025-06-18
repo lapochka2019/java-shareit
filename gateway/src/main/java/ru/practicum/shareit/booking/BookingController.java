@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +23,7 @@ public class BookingController {
         return bookingClient.create(user, bookingDto);
     }
 
-    @PatchMapping("/{bookingId}")//?approved={approved}
+    @PatchMapping("/{bookingId}")
     public ResponseEntity<Object> update(@RequestHeader("X-Sharer-User-Id") Long user,
                                          @PathVariable("bookingId") Long bookingId,
                                          @RequestParam Boolean approved) {

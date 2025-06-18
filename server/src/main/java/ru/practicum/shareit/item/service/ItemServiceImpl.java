@@ -5,7 +5,7 @@ import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingCreationDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.service.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -47,7 +47,7 @@ public class ItemServiceImpl implements ItemService {
         if (itemCreateDto.getRequestId() != null) {
             ItemRequest request = itemRequestRepository.findById(itemCreateDto.getRequestId())
                     .orElseThrow(() -> new NotFoundException("Запрос не найден"));
-            item.setRequest(request); // Устанавливаем связь
+            item.setRequest(request);
         }
         return itemMapper.toItemDto(itemRepository.save(item));
     }
@@ -57,7 +57,7 @@ public class ItemServiceImpl implements ItemService {
         userService.checkUserExist(owner);
         checkItemExist(id);
         Item existingItem = checkItemExist(id);
-        if(existingItem.getOwner() != owner){
+        if (existingItem.getOwner() != owner) {
             throw new NotFoundException("Пользователь не является владельцем вещи");
         }
         if (itemCreateDto.getName() != null) {
@@ -74,6 +74,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemFullDto getItem(Long itemId, Long userId) {
+        checkItemExist(userId);
         log.info("Получаем вещь по itemId");
         Item item = checkItemExist(itemId);
         log.info("Получаем список комментариев вещи {}", item);
@@ -83,19 +84,19 @@ public class ItemServiceImpl implements ItemService {
         log.info("Получаем текущее время");
         LocalDateTime now = LocalDateTime.now();
 
-        BookingDto lasBooking = null;
-        BookingDto nextBooking = null;
+        BookingCreationDto lasBooking = null;
+        BookingCreationDto nextBooking = null;
         if (userId.equals(item.getOwner())) {
             log.info("Получаем последнее бронирование вещи");
             lasBooking = bookingRepository.getLastBooking(itemId, now)
-                    .map(bookingMapper::toBookingDto)
+                    .map(bookingMapper::toBookingCreationDto)
                     .orElse(null);
             log.info("Получаем следующее бронирование вещи");
             nextBooking = bookingRepository.getNextBooking(itemId, now)
-                    .map(bookingMapper::toBookingDto)
+                    .map(bookingMapper::toBookingCreationDto)
                     .orElse(null);
         }
-        UserDto userDto = userService.getUser(userId);
+        UserDto userDto = userService.getUser(item.getOwner());
         return itemMapper.toFullItem(item, lasBooking, nextBooking, commentList, userDto);
     }
 
@@ -117,7 +118,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item checkItemExist(Long itemId) {
         return itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Вещь с id " + itemId + " не найдена"));
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + itemId + " не найден"));
     }
 
     @Override

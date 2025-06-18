@@ -6,19 +6,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+import ru.practicum.shareit.booking.dto.BookingCreationDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingMapper;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.service.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.service.ItemRepository;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.service.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
@@ -28,17 +25,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class BookingServiceImplTest {
 
     @Autowired
     private BookingService bookingService;
-
-    @Autowired
-    private BookingRepository bookingRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ItemRepository itemRepository;
 
     @Autowired
     private UserService userService;
@@ -46,22 +37,15 @@ class BookingServiceImplTest {
     @Autowired
     private ItemService itemService;
 
-    @Autowired
-    private BookingMapper bookingMapper;
-
     private LocalDateTime now;
     private ItemDto item;
     private Long userId;
     private Long ownerId;
     private Long itemId;
-    private BookingDto dto;
+    private BookingCreationDto dto;
 
     @BeforeEach
     void setUp() {
-        bookingRepository.deleteAll();
-        itemRepository.deleteAll();
-        userRepository.deleteAll();
-
         now = LocalDateTime.now().plusDays(1);
         UserDto user = userService.create(new UserDto(0L, "UserName", "user123@mail.ru"));
         userId = user.getId();
@@ -71,7 +55,7 @@ class BookingServiceImplTest {
         item = itemService.create(new ItemCreateDto("ItemName", "Description", true, null), ownerId);
         itemId = item.getId();
 
-        dto = new BookingDto();
+        dto = new BookingCreationDto();
         dto.setItemId(itemId);
         dto.setStart(now.plusHours(1));
         dto.setEnd(now.plusHours(2));
@@ -80,7 +64,7 @@ class BookingServiceImplTest {
     @Test
     @DisplayName("Создание бронирования: успешно")
     void createBooking_whenValid_shouldCreate() {
-        Booking saved = bookingService.createBooking(userId, dto);
+        BookingDto saved = bookingService.createBooking(userId, dto);
 
         assertThat(saved).isNotNull();
         assertThat(saved.getId()).isNotNull();
@@ -92,7 +76,7 @@ class BookingServiceImplTest {
     @Test
     @DisplayName("Создание бронирования: вещь недоступна")
     void createBooking_whenItemNotAvailable_shouldThrowException() {
-        itemService.update(new ItemCreateDto("ItemName", "Description", false, null), ownerId,itemId);
+        itemService.update(new ItemCreateDto("ItemName", "Description", false, null), ownerId, itemId);
         assertThatThrownBy(() -> bookingService.createBooking(userId, dto))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Вещь недоступна для бронирования.");
@@ -108,7 +92,7 @@ class BookingServiceImplTest {
     @Test
     @DisplayName("Создание бронирования: дата начала после окончания")
     void createBooking_whenStartDateAfterEndDate_shouldThrowException() {
-        BookingDto invalidDto = new BookingDto();
+        BookingCreationDto invalidDto = new BookingCreationDto();
         invalidDto.setItemId(1L);
         invalidDto.setStart(LocalDateTime.of(2025, 1, 1, 12, 0));
         invalidDto.setEnd(LocalDateTime.of(2025, 1, 1, 11, 0));
@@ -121,9 +105,9 @@ class BookingServiceImplTest {
     @Test
     @DisplayName("Одобрение бронирования: успешно")
     void bookingApproved_whenOwnerAndWaiting_shouldApprove() {
-        Booking created = bookingService.createBooking(userId, dto);
+        BookingDto created = bookingService.createBooking(userId, dto);
 
-        Booking updated = bookingService.bookingApproved(ownerId, created.getId(), true);
+        BookingDto updated = bookingService.bookingApproved(ownerId, created.getId(), true);
 
         assertThat(updated.getStatus()).isEqualTo(BookingStatus.APPROVED);
     }
@@ -131,7 +115,7 @@ class BookingServiceImplTest {
     @Test
     @DisplayName("Одобрение бронирования: не владелец")
     void bookingApproved_whenNotOwner_shouldThrowException() {
-        Booking created = bookingService.createBooking(userId, dto);
+        BookingDto created = bookingService.createBooking(userId, dto);
 
         assertThatThrownBy(() -> bookingService.bookingApproved(99L, created.getId(), true))
                 .isInstanceOf(ValidationException.class)
@@ -141,7 +125,7 @@ class BookingServiceImplTest {
     @Test
     @DisplayName("Получение бронирования по ID: пользователь не участник")
     void getBooking_whenUserNotParticipant_shouldThrowException() {
-        Booking created = bookingService.createBooking(userId, dto);
+        BookingDto created = bookingService.createBooking(userId, dto);
 
         assertThatThrownBy(() -> bookingService.getBooking(99L, created.getId()))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -151,8 +135,8 @@ class BookingServiceImplTest {
     @Test
     @DisplayName("Получение бронирования по ID: успешно")
     void getBooking_whenUserIsParticipant_shouldReturnBooking() {
-        Booking created = bookingService.createBooking(userId, dto);
-        Booking booking = bookingService.getBooking(userId, created.getId());
+        BookingDto created = bookingService.createBooking(userId, dto);
+        BookingDto booking = bookingService.getBooking(userId, created.getId());
 
         assertThat(booking).isNotNull();
         assertThat(booking.getId()).isEqualTo(created.getId());
@@ -161,8 +145,8 @@ class BookingServiceImplTest {
     @Test
     @DisplayName("Получение бронирований пользователя: ALL")
     void getBookingByUserId_withAllState_shouldReturnList() {
-        Booking created = bookingService.createBooking(userId, dto);
-        List<Booking> bookings = bookingService.getBookingByUserId(userId, "ALL");
+        BookingDto created = bookingService.createBooking(userId, dto);
+        List<BookingDto> bookings = bookingService.getBookingByUserId(userId, "ALL");
 
         assertThat(bookings).isNotEmpty();
     }
@@ -180,9 +164,9 @@ class BookingServiceImplTest {
     @Test
     @DisplayName("Получение бронирований владельца: FUTURE")
     void getBookingByOwnerId_withFutureState_shouldReturnList() {
-        Booking created = bookingService.createBooking(userId, dto);
-        Booking updated = bookingService.bookingApproved(ownerId, created.getId(), true);
-        List<Booking> bookings = bookingService.getBookingByOwnerId(ownerId, "FUTURE");
+        BookingDto created = bookingService.createBooking(userId, dto);
+        BookingDto updated = bookingService.bookingApproved(ownerId, created.getId(), true);
+        List<BookingDto> bookings = bookingService.getBookingByOwnerId(ownerId, "FUTURE");
 
         assertThat(bookings).isNotEmpty();
     }

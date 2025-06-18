@@ -1,16 +1,18 @@
 package ru.practicum.shareit.item;
 
 import jakarta.validation.ValidationException;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.service.CommentsRepository;
 import ru.practicum.shareit.item.service.ItemRepository;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -25,7 +27,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class ItemServiceIntegrationTest {
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+public class ItemServiceImplTest {
 
     @Autowired
     private ItemService itemService;
@@ -42,20 +45,11 @@ public class ItemServiceIntegrationTest {
     @Autowired
     private BookingRepository bookingRepository;
 
-    @Autowired
-    private CommentsRepository commentsRepository;
-
     private Long ownerId;
     private Long requestId;
 
     @BeforeEach
     void setUp() {
-        itemRepository.deleteAll();
-        userRepository.deleteAll();
-        itemRequestRepository.deleteAll();
-        bookingRepository.deleteAll();
-        commentsRepository.deleteAll();
-
         User user = new User();
         user.setName("Owner");
         user.setEmail("owner@example.com");
@@ -143,7 +137,7 @@ public class ItemServiceIntegrationTest {
     @DisplayName("Ошибка: обновление чужого предмета")
     @Test
     void updateItem_NotOwner_ThrowsNotFoundException() {
-        Item item = new Item(1L, "Item","Description",false, ownerId, null);
+        Item item = new Item(1L, "Item", "Description", false, ownerId, null);
         Long id = itemRepository.save(item).getId();
 
         ItemCreateDto dto = new ItemCreateDto();
@@ -164,16 +158,9 @@ public class ItemServiceIntegrationTest {
     @DisplayName("Получение предмета владельцем")
     @Test
     void getItemByOwner() {
-        Item item = new Item();
-        item.setName("TestItem");
-        item.setDescription("Desc");
-        item.setAvailable(true);
-        item.setOwner(ownerId);
-        Long itemId = itemRepository.save(item).getId();
-
-        ItemFullDto result = itemService.getItem(itemId, ownerId);
+        ItemFullDto result = itemService.getItem(1L, 1L);
         assertNotNull(result);
-        assertEquals(itemId, result.getId());
+        assertEquals(1L, result.getId());
     }
 
     @DisplayName("Ошибка: предмет не найден при получении")

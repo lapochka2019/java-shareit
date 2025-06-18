@@ -7,15 +7,12 @@ import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import ru.practicum.shareit.booking.BookingDto;
 import ru.practicum.shareit.utils.Marker;
 
-import java.time.LocalDateTime;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserDtoValidationTest {
 
@@ -31,7 +28,7 @@ class UserDtoValidationTest {
     @Test
     @DisplayName("Создание пользователя с пустым name")
     void createUserWithEmptyName_ReturnsValidationError() {
-        UserDto dto = new UserDto(1L, "","valid@example.com");
+        UserDto dto = new UserDto(1L, "", "valid@example.com");
 
         Set<ConstraintViolation<UserDto>> violations = validator.validate(dto, Marker.OnCreate.class);
 
@@ -49,7 +46,7 @@ class UserDtoValidationTest {
     @Test
     @DisplayName("Создание пользователя с name = null")
     void createUserWithNullName_ReturnsValidationError() {
-        UserDto dto = new UserDto(1L, null,"valid@example.com");
+        UserDto dto = new UserDto(1L, null, "valid@example.com");
 
         Set<ConstraintViolation<UserDto>> violations = validator.validate(dto, Marker.OnCreate.class);
 
@@ -67,7 +64,7 @@ class UserDtoValidationTest {
     @Test
     @DisplayName("Создание пользователя с пустым email")
     void createUserWithEmptyEmail_ReturnsValidationError() {
-        UserDto dto = new UserDto(1L,"Valid Name","");
+        UserDto dto = new UserDto(1L, "Valid Name", "");
 
         Set<ConstraintViolation<UserDto>> violations = validator.validate(dto, Marker.OnCreate.class);
 
@@ -85,7 +82,7 @@ class UserDtoValidationTest {
     @Test
     @DisplayName("Создание пользователя с некорректным email")
     void createUserWithInvalidEmail_ReturnsValidationError() {
-        UserDto dto = new UserDto(1L,"Valid Name","invalid-email");
+        UserDto dto = new UserDto(1L, "Valid Name", "invalid-email");
 
         Set<ConstraintViolation<UserDto>> violations = validator.validate(dto);
 
@@ -103,7 +100,7 @@ class UserDtoValidationTest {
     @Test
     @DisplayName("Создание пользователя с корректными данными")
     void createUserWithValidData_ReturnsNoViolations() {
-        UserDto dto = new UserDto(1L,"Valid Name","valid@example.com");
+        UserDto dto = new UserDto(1L, "Valid Name", "valid@example.com");
 
         Set<ConstraintViolation<UserDto>> violations = validator.validate(dto, Marker.OnCreate.class);
 

@@ -3,7 +3,7 @@ package ru.practicum.shareit.item;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingCreationDto;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -19,8 +19,8 @@ class ItemMapperTest {
     private final ItemMapper mapper = ItemMapper.INSTANCE;
 
     private Item item;
-    private BookingDto lastBooking;
-    private BookingDto nextBooking;
+    private BookingCreationDto lastBooking;
+    private BookingCreationDto nextBooking;
     private List<CommentDto> comments;
     private UserDto owner;
     private ItemRequest request;
@@ -34,12 +34,12 @@ class ItemMapperTest {
         item.setAvailable(true);
         item.setOwner(100L);
 
-        request = new ItemRequest(5L, "Request", 1L, LocalDateTime.now(),null);
+        request = new ItemRequest(5L, "Request", 1L, LocalDateTime.now(), null);
         item.setRequest(request);
 
-        lastBooking = new BookingDto(1L, LocalDateTime.now(), LocalDateTime.now().plusHours(3));
+        lastBooking = new BookingCreationDto(1L, LocalDateTime.now(), LocalDateTime.now().plusHours(3));
 
-        nextBooking = new BookingDto(1L, LocalDateTime.now().plusHours(4), LocalDateTime.now().plusHours(7));
+        nextBooking = new BookingCreationDto(1L, LocalDateTime.now().plusHours(4), LocalDateTime.now().plusHours(7));
 
         CommentDto comment = new CommentDto();
         comment.setText("Good!");
