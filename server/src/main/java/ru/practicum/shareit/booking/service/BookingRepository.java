@@ -48,11 +48,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     //REJECT state by ownerId
     List<Booking> findByItem_OwnerAndStatusOrderByStartDesc(Long ownerId, BookingStatus status);
 
-    @Query(value = "SELECT * FROM bookings WHERE booker_id = :userId AND item_id = :itemId " +
-            "AND status = 'APPROVED' AND end_date < :now", nativeQuery = true)
-    List<Booking> findAllByUserBookings(@Param("userId") Long userId,
-                                        @Param("itemId") Long itemId,
-                                        @Param("now") LocalDateTime now);
+    @Query(value = "SELECT b.* FROM bookings as b " +
+            "JOIN items as i ON i.id = b.item_id " +
+            "WHERE b.booker_id = ?1 AND i.id = ?2 AND b.status = 'APPROVED' AND b.end_date < ?3 ", nativeQuery = true)
+    List<Booking> findAllByUserBookings(Long userId, Long itemId, LocalDateTime now);
 
     @Query(value = "SELECT * FROM bookings WHERE item_id = :itemId AND start_date < :now " +
             "AND status = 'APPROVED' ORDER BY start_date DESC LIMIT 1", nativeQuery = true)

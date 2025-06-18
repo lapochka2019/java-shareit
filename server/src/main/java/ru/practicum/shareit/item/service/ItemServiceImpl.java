@@ -74,7 +74,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemFullDto getItem(Long itemId, Long userId) {
-        checkItemExist(userId);
+        userService.checkUserExist(userId);
         log.info("Получаем вещь по itemId");
         Item item = checkItemExist(itemId);
         log.info("Получаем список комментариев вещи {}", item);
