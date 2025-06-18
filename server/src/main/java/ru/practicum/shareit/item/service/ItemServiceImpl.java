@@ -22,6 +22,7 @@ import ru.practicum.shareit.user.service.UserService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -57,7 +58,7 @@ public class ItemServiceImpl implements ItemService {
         userService.checkUserExist(owner);
         checkItemExist(id);
         Item existingItem = checkItemExist(id);
-        if (existingItem.getOwner() != owner) {
+        if (!Objects.equals(existingItem.getOwner(), owner)) {
             throw new NotFoundException("Пользователь не является владельцем вещи");
         }
         if (itemCreateDto.getName() != null) {
