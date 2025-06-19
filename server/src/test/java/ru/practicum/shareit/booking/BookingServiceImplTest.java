@@ -86,7 +86,7 @@ class BookingServiceImplTest {
     @DisplayName("Создание бронирования: пользователь не существует")
     void createBooking_whenUserNotFound_shouldThrowException() {
         assertThatThrownBy(() -> bookingService.createBooking(99L, dto))
-                .isInstanceOf(NotFoundException.class); // может быть NotFoundException
+                .isInstanceOf(NotFoundException.class);
     }
 
     @Test
