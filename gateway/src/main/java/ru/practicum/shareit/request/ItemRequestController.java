@@ -8,9 +8,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.utils.Marker;
 
-/**
- * TODO Sprint add-item-requests.
- */
+import static ru.practicum.shareit.utils.Constants.USER_ID_HEADER;
+
 @Slf4j
 @Validated
 @RestController
@@ -22,20 +21,20 @@ public class ItemRequestController {
 
     @PostMapping
     @Validated(Marker.OnCreate.class)
-    public ResponseEntity<Object> create(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ResponseEntity<Object> create(@RequestHeader(USER_ID_HEADER) Long userId,
                                          @Valid @RequestBody ItemRequestDto itemRequestDto) {
         log.info("Запрос на создание Request {} от пользователя {}", itemRequestDto, userId);
         return requestClient.create(userId, itemRequestDto);
     }
 
     @GetMapping()
-    public ResponseEntity<Object> getUserRequests(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public ResponseEntity<Object> getUserRequests(@RequestHeader(USER_ID_HEADER) Long userId) {
         log.info("Запрос на получение Request'ов пользователя с id {}", userId);
         return requestClient.getUserRequests(userId);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Object> getAllRequests(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ResponseEntity<Object> getAllRequests(@RequestHeader(USER_ID_HEADER) Long userId,
                                                  @RequestParam(defaultValue = "0") Integer offset,
                                                  @RequestParam(defaultValue = "10") Integer limit) {
         log.info("Запрос на получение всех Request'ов");

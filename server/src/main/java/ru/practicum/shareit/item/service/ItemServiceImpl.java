@@ -14,10 +14,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestRepository;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.service.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,18 +28,17 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentsRepository commentsRepository;
     private final BookingMapper bookingMapper;
     private final ItemMapper itemMapper;
-    private final UserMapper userMapper;
     private final CommentMapper commentMapper;
     private final ItemRequestRepository itemRequestRepository;
 
     @Override
     public ItemDto create(ItemCreateDto itemCreateDto, Long owner) {
-        userService.checkUserExist(owner);
+        checkUserExist(owner);
 
         Item item = itemMapper.dtoToItem(itemCreateDto, 0L, owner, null);
 
@@ -55,7 +52,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto update(ItemCreateDto itemCreateDto, Long owner, Long id) {
-        userService.checkUserExist(owner);
+        checkUserExist(owner);
         checkItemExist(id);
         Item existingItem = checkItemExist(id);
         if (!Objects.equals(existingItem.getOwner(), owner)) {
@@ -76,7 +73,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemFullDto getItem(Long itemId, Long userId) {
-        userService.checkUserExist(userId);
+        checkUserExist(userId);
         log.info("Получаем вещь по itemId");
         Item item = checkItemExist(itemId);
         log.info("Получаем список комментариев вещи {}", item);
@@ -98,8 +95,9 @@ public class ItemServiceImpl implements ItemService {
                     .map(bookingMapper::toBookingCreationDto)
                     .orElse(null);
         }
-        UserDto userDto = userService.getUser(item.getOwner());
-        return itemMapper.toFullItem(item, lasBooking, nextBooking, commentList, userDto);
+        User user = userRepository.findById(item.getOwner())
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + item.getOwner() + " не найден"));
+        return itemMapper.toFullItem(item, lasBooking, nextBooking, commentList, user);
     }
 
     @Override
@@ -126,7 +124,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public CommentResponseDto addCommentToItem(Long userId, Long itemId, CommentDto commentDto) {
         log.info("Проверяем существование пользователя");
-        User user = userMapper.toEntity(userService.getUser(userId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
         log.info("Проверяем существование вещи");
         Item item = checkItemExist(itemId);
         LocalDateTime now = LocalDateTime.now();
@@ -135,6 +134,12 @@ public class ItemServiceImpl implements ItemService {
         } else {
             Comment comment = commentMapper.toComment(1L, commentDto, item, user, now);
             return commentMapper.toCommentResponseDto(commentsRepository.save(comment));
+        }
+    }
+
+    public void checkUserExist(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new NotFoundException("Пользователь с id " + id + " не найден");
         }
     }
 }

@@ -7,6 +7,7 @@ import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,9 +50,10 @@ class ItemMapperTest {
         BookingCreationDto lastBooking = new BookingCreationDto(1L, LocalDateTime.now(), LocalDateTime.now().plusDays(1));
         BookingCreationDto nextBooking = new BookingCreationDto(2L, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(3));
         List<CommentDto> comments = List.of(new CommentDto("Great!"));
+        User user = new User(1L, "Name", "user@example.com");
         UserDto owner = new UserDto(1L, "Name", "user@example.com");
 
-        ItemFullDto fullDto = ItemMapper.INSTANCE.toFullItem(item, lastBooking, nextBooking, comments, owner);
+        ItemFullDto fullDto = ItemMapper.INSTANCE.toFullItem(item, lastBooking, nextBooking, comments, user);
 
         assertThat(fullDto).isNotNull();
         assertThat(fullDto.getId()).isEqualTo(item.getId());

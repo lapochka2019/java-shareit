@@ -72,7 +72,7 @@ class ItemRequestServiceImplTest {
 
         assertThatThrownBy(() -> itemRequestService.create(dto, invalidUserId))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessageContaining("Пользователь с ID=" + invalidUserId + " не найден");
+                .hasMessageContaining("Пользователь с id " + invalidUserId + " не найден");
     }
 
     @Test
@@ -106,7 +106,7 @@ class ItemRequestServiceImplTest {
 
         assertThatThrownBy(() -> itemRequestService.getUserRequests(invalidUserId))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessageContaining("Пользователь с ID=" + invalidUserId + " не найден");
+                .hasMessageContaining("Пользователь с id " + invalidUserId + " не найден");
     }
 
     @Test

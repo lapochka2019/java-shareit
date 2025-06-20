@@ -12,12 +12,11 @@ import ru.practicum.shareit.request.dto.ItemRequestAnswerDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.service.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -27,40 +26,61 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRequestMapper itemRequestMapper;
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final ItemMapper itemMapper;
 
     @Override
     public ItemRequest create(ItemRequestDto dto, Long user) {
         log.info("Проверяем существование пользователя {}", user);
-        userService.getUser(user);
+        getUser(user);
         log.info("Создаем запрос");
         return itemRequestRepository.save(itemRequestMapper.toItemRequest(0L, dto, user, LocalDateTime.now(), null));
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<ItemRequestAnswerDto> getUserRequests(Long user) {
-        userService.getUser(user);
+    public List<ItemRequestAnswerDto> getUserRequests(Long userId) {
+        getUser(userId);
 
-        return itemRequestRepository.findByRequesterIdOrderByCreatedDesc(user).stream().map(request -> itemRequestMapper.toItemRequestAnswerDto(request, Optional.ofNullable(request.getItems()).orElse(Collections.emptyList()).stream().map(itemMapper::toItemDtoForRequest).toList())).toList();
+        return itemRequestRepository.findByRequesterIdOrderByCreatedDesc(userId).stream()
+                .map(request -> itemRequestMapper.toItemRequestAnswerDto(
+                        request,
+                        request.getItems().stream()
+                                .map(itemMapper::toItemDtoForRequest)
+                                .toList()
+                ))
+                .toList();
     }
 
     @Override
     public List<ItemRequestAnswerDto> getAllRequests(int limit, int offset) {
         Pageable pageable = PageRequest.of(offset / limit, limit);
-        return itemRequestRepository.findAllByOrderByCreatedDesc(pageable).stream().map(request -> itemRequestMapper.toItemRequestAnswerDto(request, Optional.ofNullable(request.getItems()).orElse(Collections.emptyList()).stream().map(itemMapper::toItemDtoForRequest).toList())).toList();
+        return itemRequestRepository.findAllByOrderByCreatedDesc(pageable).stream()
+                .map(request -> itemRequestMapper.toItemRequestAnswerDto(
+                        request,
+                        request.getItems().stream()
+                                .map(itemMapper::toItemDtoForRequest)
+                                .toList()
+                ))
+                .toList();
     }
 
     @Transactional(readOnly = true)
     @Override
     public ItemRequestAnswerDto getRequest(Long requestId) {
-        Optional<ItemRequest> optionalItemRequest = itemRequestRepository.findById(requestId);
-        if (optionalItemRequest.isEmpty()) {
-            throw new NotFoundException("Запрос с ID=" + requestId + " не найден");
-        }
-        ItemRequest itemRequest = optionalItemRequest.get();
+        ItemRequest itemRequest = itemRequestRepository.findById(requestId)
+                .orElseThrow(() -> new NotFoundException("Запрос с ID=" + requestId + " не найден"));
 
-        return itemRequestMapper.toItemRequestAnswerDto(itemRequest, Optional.ofNullable(itemRequest.getItems()).orElse(Collections.emptyList()).stream().map(itemMapper::toItemDtoForRequest).toList());
+        return itemRequestMapper.toItemRequestAnswerDto(
+                itemRequest,
+                itemRequest.getItems().stream()
+                        .map(itemMapper::toItemDtoForRequest)
+                        .toList()
+        );
+    }
+
+    public User getUser(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
     }
 }

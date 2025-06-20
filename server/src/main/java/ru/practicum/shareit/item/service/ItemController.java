@@ -8,9 +8,8 @@ import ru.practicum.shareit.item.dto.*;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
+import static ru.practicum.shareit.utils.Constants.USER_ID_HEADER;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -19,27 +18,27 @@ public class ItemController {
     private final ItemService service;
 
     @PostMapping
-    public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long owner,
+    public ItemDto create(@RequestHeader(USER_ID_HEADER) Long owner,
                           @RequestBody ItemCreateDto itemCreateDto) {
         log.info("Запрос на создание вещи {} от пользователя {}", itemCreateDto, owner);
         return service.create(itemCreateDto, owner);
     }
 
     @PatchMapping("/{id}")
-    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long owner,
+    public ItemDto update(@RequestHeader(USER_ID_HEADER) Long owner,
                           @RequestBody ItemCreateDto itemCreateDto, @PathVariable("id") Long id) {
         log.info("Запрос на обновление вещи {} от пользователя {}", itemCreateDto, owner);
         return service.update(itemCreateDto, owner, id);
     }
 
     @GetMapping("/{id}")
-    public ItemFullDto getItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable("id") Long id) {
+    public ItemFullDto getItem(@RequestHeader(USER_ID_HEADER) Long userId, @PathVariable("id") Long id) {
         log.info("Запрос на получение вещи с id {}", id);
         return service.getItem(id, userId);
     }
 
     @GetMapping
-    public List<ItemDto> getItemsForOwner(@RequestHeader("X-Sharer-User-Id") Long owner) {
+    public List<ItemDto> getItemsForOwner(@RequestHeader(USER_ID_HEADER) Long owner) {
         log.info("Запрос на получение вещей пользователя id {}", owner);
         return service.getItemsForOwner(owner);
     }
@@ -51,7 +50,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentResponseDto addCommentToItem(@RequestHeader("X-Sharer-User-Id") Long user,
+    public CommentResponseDto addCommentToItem(@RequestHeader(USER_ID_HEADER) Long user,
                                                @PathVariable("itemId") Long itemId, @Valid @RequestBody CommentDto commentDto) {
         log.info("Пользователь: {} пытается оставить комментарий \"{}\" для вещи с id {}", user, commentDto, itemId);
         return service.addCommentToItem(user, itemId, commentDto);

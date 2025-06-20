@@ -8,9 +8,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.utils.Marker;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Slf4j
 @Validated
 @RestController

@@ -6,7 +6,7 @@ import org.mapstruct.factory.Mappers;
 import ru.practicum.shareit.booking.dto.BookingCreationDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
@@ -21,9 +21,9 @@ public interface ItemMapper {
 
     @Mapping(target = "id", source = "item.id")
     @Mapping(target = "name", source = "item.name")
-    @Mapping(target = "owner", source = "owner")
+    @Mapping(target = "owner", source = "user")
     @Mapping(target = "request", source = "item.request.id")
-    ItemFullDto toFullItem(Item item, BookingCreationDto lastBooking, BookingCreationDto nextBooking, List<CommentDto> comments, UserDto owner);
+    ItemFullDto toFullItem(Item item, BookingCreationDto lastBooking, BookingCreationDto nextBooking, List<CommentDto> comments, User user);
 
     ItemDtoForRequest toItemDtoForRequest(Item item);
 

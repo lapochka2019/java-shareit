@@ -13,10 +13,9 @@ import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.item.service.ItemRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.service.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,8 +25,8 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
-    private final ItemService itemService;
-    private final UserService userService;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
 
@@ -35,17 +34,18 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDto createBooking(Long userId, BookingCreationDto bookingCreationDto) {
         log.info("Проверяем существования пользователя {}", userId);
-        userService.checkUserExist(userId);
+        getUser(userId);
         log.info("Проверка корректной даты бронирования {}", bookingCreationDto);
         checkData(bookingCreationDto);
         log.info("Получение вещи, которую хотят забронировать");
-        Item item = itemService.checkItemExist(bookingCreationDto.getItemId());
+        Item item = itemRepository.findById(bookingCreationDto.getItemId())
+                .orElseThrow(() -> new NotFoundException("Вещь с id " + bookingCreationDto.getItemId() + " не найдена"));
         if (!item.getAvailable()) {
             log.error("Вещь недоступна для бронирования.");
             throw new IllegalStateException("Вещь недоступна для бронирования.");
         }
         log.info("Получение пользователя, который хочет забронировать вещь");
-        User user = UserMapper.INSTANCE.toEntity(userService.getUser(userId));
+        User user = getUser(userId);
 
         Booking booking = bookingMapper.toBooking(0L, bookingCreationDto, item, user, BookingStatus.WAITING);
         log.info("Сохраняем запрос на бронирование");
@@ -82,7 +82,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDto getBooking(Long userId, Long bookingId) {
         log.info("Проверяем существования пользователя {}", userId);
-        userService.getUser(userId);
+        getUser(userId);
         log.info("Получаем информацию о запросе бронирования {}", bookingId);
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Бронирование с id " + bookingId + " не найдено"));
@@ -100,7 +100,7 @@ public class BookingServiceImpl implements BookingService {
         log.info("Проверяем параметр stateString");
         BookingState state = parseState(stateString);
         log.info("Проверяем существования пользователя {}", id);
-        userService.getUser(id);
+        getUser(id);
         LocalDateTime now = LocalDateTime.now();
         List<Booking> bookings = switch (state) {
             case ALL -> bookingRepository.findByBookerIdOrderByStartDesc(id);
@@ -121,7 +121,7 @@ public class BookingServiceImpl implements BookingService {
         log.info("Проверяем параметр stateString");
         BookingState state = parseState(stateString);
         log.info("Проверяем существования пользователя (ВЛАДЕЛЬЦА) {}", id);
-        userService.getUser(id);
+        getUser(id);
         LocalDateTime now = LocalDateTime.now();
         List<Booking> bookings = switch (state) {
             case ALL -> bookingRepository.findByItem_OwnerOrderByStartDesc(id);
@@ -149,6 +149,11 @@ public class BookingServiceImpl implements BookingService {
         } catch (IllegalArgumentException e) {
             throw new ValidationException("Неизвестный BookingState: " + stateString);
         }
+    }
+
+    public User getUser(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
     }
 
 }

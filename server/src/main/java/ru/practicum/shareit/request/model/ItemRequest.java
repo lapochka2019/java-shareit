@@ -5,6 +5,7 @@ import lombok.*;
 import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -32,5 +33,5 @@ public class ItemRequest {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    List<Item> items;
+    List<Item> items = new ArrayList<>();
 }
